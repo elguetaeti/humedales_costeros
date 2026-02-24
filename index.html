@@ -997,19 +997,35 @@ loadDrawings();
 
 map.on(L.Draw.Event.CREATED, async function (event) {
     var layer = event.layer;
+
+    var observacion = prompt("Ingrese observaciones para este polígono:");
+
     drawnItems.addLayer(layer);
 
     const geojson = layer.toGeoJSON();
 
     const { data, error } = await supabaseClient
         .from("dibujos")
-        .insert([{ geom: geojson.geometry, user_id: userId }])
+        .insert([{
+            geom: geojson.geometry,
+            user_id: userId,
+            observaciones: observacion || "Sin observaciones"
+        }])
         .select();
 
     if (!error) {
         layer._dbId = data[0].id;
         layer._owner = userId;
+
+        layer.bindPopup(
+            "<b>Observaciones:</b><br>" + 
+            (observacion || "Sin observaciones")
+        );
+
         layer.setStyle({ color: "red" });
+    } else {
+        console.error(error);
+        alert("Error al guardar el polígono");
     }
 });
 
