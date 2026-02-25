@@ -19,6 +19,13 @@
             padding: 0;
             margin: 0;
         }
+	.leaflet-div-icon {
+   	 width: 6px !important;
+  	  height: 6px !important;
+  	  background: red !important;
+  	  border: 1px solid white !important;
+   	 border-radius: 50% !important;
+	}
         </style>
         <title></title>
     </head>
@@ -954,9 +961,22 @@ map.addLayer(drawnItems);
 // LEAFLET DRAW
 // ===============================
 
+L.drawLocal.draw.handlers.polygon.tooltip.start = "Haz click para comenzar";
+L.drawLocal.draw.handlers.polygon.tooltip.cont = "Sigue dibujando";
+L.drawLocal.draw.handlers.polygon.tooltip.end = "Click para cerrar";
+
 var drawControl = new L.Control.Draw({
     draw: {
-        polygon: true,
+        polygon: {
+            shapeOptions: {
+                color: "red",
+                weight: 2
+            },
+            icon: new L.DivIcon({
+                iconSize: new L.Point(6, 6),
+                className: 'custom-vertex'
+            })
+        },
         polyline: false,
         rectangle: false,
         circle: false,
@@ -967,6 +987,9 @@ var drawControl = new L.Control.Draw({
         featureGroup: drawnItems
     }
 });
+
+map.addControl(drawControl);
+
 map.addControl(drawControl);
 
 // ===============================
