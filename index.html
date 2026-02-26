@@ -26,6 +26,110 @@
   	  border: 1px solid white !important;
    	 border-radius: 50% !important;
 	}
+/* ===============================
+   MODAL MODERNO
+================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+}
+
+.modal-card {
+  background: #ffffff;
+  width: 420px;
+  max-width: 90%;
+  padding: 24px;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  animation: fadeIn 0.25s ease;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.modal-card h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-save {
+  background: #c40000;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-save:hover {
+  background: #a00000;
+}
+
+.btn-cancel {
+  background: #e0e0e0;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.logo-esquina {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  height: 38px;
+  z-index: 5000;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.logo-esquina:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
         </style>
         <title></title>
     </head>
@@ -770,7 +874,7 @@ map.fitBounds(boundsPR);
             }
         }
         map.createPane('pane_Aguasabiertas_11');
-        map.getPane('pane_Aguasabiertas_11').style.zIndex = 411;
+        map.getPane('pane_Aguasabiertas_11').style.zIndex = 401;
         map.getPane('pane_Aguasabiertas_11').style['mix-blend-mode'] = 'normal';
         var layer_Aguasabiertas_11 = new L.geoJson(json_Aguasabiertas_11, {
             attribution: '',
@@ -995,7 +1099,8 @@ var drawControl = new L.Control.Draw({
         circlemarker: false
     },
     edit: {
-        featureGroup: drawnItems
+        featureGroup: drawnItems,
+        remove: true   
     }
 });
 
@@ -1024,43 +1129,70 @@ async function loadDrawings() {
 }
 
 loadDrawings();
+let layerTemp = null;
 
-// ===============================
-// CREATE
-// ===============================
+function abrirModal(layer) {
+    layerTemp = layer;
+    document.getElementById("formModal").style.display = "flex";
+}
 
-map.on(L.Draw.Event.CREATED, async function (event) {
-    var layer = event.layer;
+function cerrarModal() {
+    document.getElementById("formModal").style.display = "none";
+    layerTemp = null;
+}
 
-    var observacion = prompt("Ingrese observaciones para este polígono:");
+async function guardarFormulario() {
 
-    drawnItems.addLayer(layer);
+    const categoria = document.getElementById("categoria").value;
+    const ecosistema = document.getElementById("ecosistema").value;
+    const entidad = document.getElementById("entidad").value;
+    const observacion = document.getElementById("observaciones").value;
 
-    const geojson = layer.toGeoJSON();
+    if (!layerTemp) return;
+
+    drawnItems.addLayer(layerTemp);
+
+    const geojson = layerTemp.toGeoJSON();
 
     const { data, error } = await supabaseClient
         .from("dibujos")
         .insert([{
             geom: geojson.geometry,
             user_id: userId,
-            observaciones: observacion || "Sin observaciones"
+            categoria_manejo: categoria,
+            tipo_ecosistema: ecosistema,
+            entidad_editor: entidad,
+            observaciones: observacion
         }])
         .select();
 
     if (!error) {
-        layer._dbId = data[0].id;
-        layer._owner = userId;
 
-        layer.bindPopup(
-            "<b>Observaciones:</b><br>" + 
-            (observacion || "Sin observaciones")
-        );
+        layerTemp._dbId = data[0].id;
+	layerTemp._owner = userId;
 
-        layer.setStyle({ color: "red" });
+        layerTemp.bindPopup(`
+            <b>Categoría de manejo:</b><br>${categoria}<br><br>
+            <b>Tipo de ecosistema:</b><br>${ecosistema}<br><br>
+            <b>Entidad - Editor:</b><br>${entidad}<br><br>
+            <b>Observaciones:</b><br>${observacion}
+        `);
+
+        layerTemp.setStyle({ color: "red" });
+
     } else {
-        console.error(error);
-        alert("Error al guardar el polígono");
+        alert(error.message);
     }
+
+    cerrarModal();
+	}
+// ===============================
+// CREATE
+// ===============================
+
+ map.on(L.Draw.Event.CREATED, function (event) {
+    var layer = event.layer;
+    abrirModal(layer);
 });
 
 // ===============================
@@ -1100,6 +1232,44 @@ downloadBtn.onAdd = function () {
 };
 
 downloadBtn.addTo(map);
-        </script>        
+        </script> 
+<!-- ===============================
+     MODAL FORMULARIO POLÍGONO
+================================ -->
+<div id="formModal" class="modal-overlay">
+  <div class="modal-card">
+    <h2>Nuevo Polígono</h2>
+
+    <div class="form-group">
+      <label>Categoría de manejo</label>
+      <input type="text" id="categoria">
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de ecosistema(s)</label>
+      <input type="text" id="ecosistema">
+    </div>
+
+    <div class="form-group">
+      <label>Entidad - Editor</label>
+      <input type="text" id="entidad">
+    </div>
+
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea id="observaciones"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-save" onclick="guardarFormulario()">Guardar</button>
+    </div>
+  </div>
+</div> 
+<img 
+  src="https://estudiostecnicos.com/wp-content/uploads/2021/01/logo-trasnparente.png" 
+  class="logo-esquina"
+  onclick="window.open('https://estudiostecnicos.com','_blank')"
+/>      
     </body>
 </html>
