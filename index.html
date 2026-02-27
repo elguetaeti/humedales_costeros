@@ -159,7 +159,6 @@
         <script src="data/Plantasacuticas_9.js"></script>
         <script src="data/Costanoconsolidada_10.js"></script>
         <script src="data/Aguasabiertas_11.js"></script>
-        <script src="data/ProyectoEsencia_12.js"></script>
 	<script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script>
@@ -887,66 +886,8 @@ map.fitBounds(boundsPR);
         });
         bounds_group.addLayer(layer_Aguasabiertas_11);
         map.addLayer(layer_Aguasabiertas_11);
-        function pop_ProyectoEsencia_12(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(String(feature.properties['fid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['cat'] !== null ? autolinker.link(String(feature.properties['cat']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['a_cat'] !== null ? autolinker.link(String(feature.properties['a_cat']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['a_class'] !== null ? autolinker.link(String(feature.properties['a_class']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['a_Fuente'] !== null ? autolinker.link(String(feature.properties['a_Fuente']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['a_Ecosistema'] !== null ? autolinker.link(String(feature.properties['a_Ecosistema']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['a_area'] !== null ? autolinker.link(String(feature.properties['a_area']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
-
-        function style_ProyectoEsencia_12_0() {
-            return {
-                pane: 'pane_ProyectoEsencia_12',
-                opacity: 1,
-                color: 'rgba(255,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 3.0, 
-                fillOpacity: 0,
-                interactive: false,
-            }
-        }
-        map.createPane('pane_ProyectoEsencia_12');
-        map.getPane('pane_ProyectoEsencia_12').style.zIndex = 412;
-        map.getPane('pane_ProyectoEsencia_12').style['mix-blend-mode'] = 'normal';
-        var layer_ProyectoEsencia_12 = new L.geoJson(json_ProyectoEsencia_12, {
-            attribution: '',
-            interactive: false,
-            dataVar: 'json_ProyectoEsencia_12',
-            layerName: 'layer_ProyectoEsencia_12',
-            pane: 'pane_ProyectoEsencia_12',
-            onEachFeature: pop_ProyectoEsencia_12,
-            style: style_ProyectoEsencia_12_0,
-        });
-        bounds_group.addLayer(layer_ProyectoEsencia_12);
-        map.addLayer(layer_ProyectoEsencia_12);
-        var overlaysTree = [
-            {label: '<img src="legend/ProyectoEsencia_12.png" /> Proyecto Esencia', layer: layer_ProyectoEsencia_12},
+         var overlaysTree = [
+            
         {label: '<b>Humedales</b>',  selectAllCheckbox: true, children: [
             {label: '<img src="legend/Aguasabiertas_11.png" /> Aguas abiertas', layer: layer_Aguasabiertas_11},
             {label: '<img src="legend/Costanoconsolidada_10.png" /> Costa no consolidada', layer: layer_Costanoconsolidada_10},
