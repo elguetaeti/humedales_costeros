@@ -1054,8 +1054,10 @@ map.addControl(drawControl);
 // ===============================
 
 async function loadDrawings() {
-    const { data, error } = await supabaseClient.from("dibujos").select("*");
-    if (error) return;
+    const { data, error } = await supabaseClient
+    .from("dibujos")
+    .select("*")
+    .eq("owner", userId);
 
     data.forEach(row => {
         const layer = L.geoJSON(row.geom, {
